@@ -15,14 +15,19 @@ import java.util.List;
 @WebServlet("/show_all")
 public class ShowAllStudentsServlet extends HttpServlet {
 
-    private final StudentDAO studentDAO = new StudentDAO();
+    private StudentDAO studentDAO = new StudentDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        List<Student> students = studentDAO.getAllStudents();
-        request.setAttribute("students", students);
-        request.getRequestDispatcher("students.jsp").forward(request, response);
+        try {
+            List<Student> students = studentDAO.getAllStudents();
+            request.setAttribute("students", students);
+            request.getRequestDispatcher("students.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.getWriter().println("Error: " + e.getMessage());
+        }
     }
 }

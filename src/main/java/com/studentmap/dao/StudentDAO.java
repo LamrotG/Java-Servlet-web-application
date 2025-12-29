@@ -1,55 +1,41 @@
 package com.studentmap.dao;
 
 import com.studentmap.model.Student;
-import com.studentmap.util.DBUtil;
+import com.studentmap.util.StudentUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class StudentDAO {
 
-    public void insertStudent(Student student) {
+    public void addStudent(Student student) throws Exception {
         String sql = "INSERT INTO students (name, email, year) VALUES (?, ?, ?)";
-
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, student.getName());
-            ps.setString(2, student.getEmail());
-            ps.setInt(3, student.getYear());
-
-            ps.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        try (Connection conn = StudentUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, student.getName());
+            stmt.setString(2, student.getEmail());
+            stmt.setInt(3, student.getYear());
+            stmt.executeUpdate();
         }
     }
 
-    public List<Student> getAllStudents() {
+    public List<Student> getAllStudents() throws Exception {
         List<Student> students = new ArrayList<>();
         String sql = "SELECT * FROM students";
-
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = StudentUtil.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                Student student = new Student(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("email"),
-                        rs.getInt("year")
-                );
-                students.add(student);
+                Student s = new Student();
+                s.setId(rs.getInt("id"));
+                s.setName(rs.getString("name"));
+                s.setEmail(rs.getString("email"));
+                s.setYear(rs.getInt("year"));
+                students.add(s);
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
         return students;
     }
 }

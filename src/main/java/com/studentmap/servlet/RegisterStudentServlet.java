@@ -14,7 +14,7 @@ import java.io.IOException;
 @WebServlet("/register")
 public class RegisterStudentServlet extends HttpServlet {
 
-    private final StudentDAO studentDAO = new StudentDAO();
+    private StudentDAO studentDAO = new StudentDAO();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -22,19 +22,19 @@ public class RegisterStudentServlet extends HttpServlet {
 
         String name = request.getParameter("name");
         String email = request.getParameter("email");
-        String yearStr = request.getParameter("year");
+        int year = Integer.parseInt(request.getParameter("year"));
 
-        if (name == null || email == null || yearStr == null ||
-            name.isEmpty() || email.isEmpty() || yearStr.isEmpty()) {
-            response.sendRedirect("register.jsp?error=Missing+fields");
-            return;
+        Student student = new Student();
+        student.setName(name);
+        student.setEmail(email);
+        student.setYear(year);
+
+        try {
+            studentDAO.addStudent(student);
+            response.sendRedirect("show_all");
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.getWriter().println("Error: " + e.getMessage());
         }
-
-        int year = Integer.parseInt(yearStr);
-
-        Student student = new Student(name, email, year);
-        studentDAO.insertStudent(student);
-
-        response.sendRedirect("show_all");
     }
 }
